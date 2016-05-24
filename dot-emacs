@@ -1,0 +1,87 @@
+;
+; global setup
+;
+
+(column-number-mode 1)
+(setq grep-command "grep -i ")
+(display-time)
+(setq visible-bell t)
+(setq backup-inhibited t)
+(setq c-basic-offset 2)
+(global-set-key "\C-cg" 'goto-line)
+(global-set-key "\C-xg" 'goto-line)
+(global-set-key "\C-c\C-r" 'replace-string)
+(global-set-key "\C-x\C-r" 'query-replace)
+(global-set-key "\C-x\C-x" 'delete-region)
+(global-set-key "\C-z" 'revert-no-ask)
+(global-set-key [f4] 'call-last-kbd-macro)
+(global-set-key [f1] 'server-edit)
+(global-set-key [f2] 'toggle-read-only)
+(global-set-key [f3] 'revert-buffer)
+(global-set-key [f6] 'insert-java-class)
+(global-set-key [f7] 'recompile)
+(global-set-key [mouse-4] 'scroll-down)
+(global-set-key [mouse-5] 'scroll-up)
+
+(cd "~")
+
+;(setq load-path (cons "/usr/local/share/emacs/site-lisp" load-path))
+;(setq load-path (cons "/cust/lisp" load-path))
+;(setq load-path (cons "~/site-lisp/scala-mode" load-path))
+(setq load-path (cons "~/site-lisp" load-path))
+
+; loads ruby mode when a .rb file is opened.
+(autoload 'ruby-mode "ruby-mode" "Major mode for editing ruby scripts." t)
+(autoload 'clojure-mode "clojure-mode" "Major mode for editing clojur" t)
+(autoload 'php-mode "php-mode" "Major mode for editing php" t)
+
+(setq auto-mode-alist  (cons '(".rb$" . ruby-mode) auto-mode-alist))
+(setq auto-mode-alist  (cons '(".rhtml$" . html-mode) auto-mode-alist))
+(setq auto-mode-alist (cons '(".clj$" . clojure-mode) auto-mode-alist))
+(setq auto-mode-alist (cons '(".php" . php-mode) auto-mode-alist))
+
+;(require 'scala-mode-auto)
+
+(defun revert-no-ask ()
+	"revert buffer without prompt"
+	(interactive)
+	(revert-buffer nil t))
+
+(custom-set-variables
+  ;; custom-set-variables was added by Custom -- don't edit or cut/paste it!
+  ;; Your init file should contain only one such instance.
+ '(case-fold-search t)
+ '(current-language-environment "Latin-1")
+ '(default-input-method "latin-1-prefix")
+ '(global-font-lock-mode t nil (font-lock))
+ '(make-backup-files nil)
+ '(revert-without-query (quote ("\\.java\\'" "\\.log\\'")))
+ '(uniquify-buffer-name-style (quote forward) nil (uniquify)))
+(custom-set-faces
+  ;; custom-set-faces was added by Custom -- don't edit or cut/paste it!
+  ;; Your init file should contain only one such instance.
+ )
+
+
+(defun vc-before-save () nil)
+
+; from http://www.jwz.org/doc/tabs-vs-spaces.html
+(setq tab-width 8)
+(setq indent-tabs-mode nil)
+(defun java-mode-untabify ()
+  (save-excursion
+    (goto-char (point-min))
+    (while (re-search-forward "[ \t]+$" nil t)
+      (delete-region (match-beginning 0) (match-end 0)))
+    (goto-char (point-min))
+    (if (search-forward "\t" nil t)
+	(untabify (1- (point)) (point-max))))
+  nil)
+
+(add-hook 'java-mode-hook 
+	  '(lambda ()
+	     (make-local-variable 'write-contents-hooks)
+	     (add-hook 'write-contents-hooks 'java-mode-untabify)))
+
+(setq mail-default-reply-to "aviolette@gmail.com")
+(server-start)
